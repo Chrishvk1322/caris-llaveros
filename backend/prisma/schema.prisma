@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Rol {
+  id          Int     @id @default(autoincrement())
+  nombre      String  @unique
+  descripcion String?
+
+  usuarios Usuario[]
+
+  @@map("rol")
+}
+
+model Usuario {
+  id           Int    @id @default(autoincrement())
+  rolId        Int    @map("rol_id")
+  email        String @unique
+  passwordHash String @map("password_hash")
+
+  rol Rol @relation(fields: [rolId], references: [id])
+
+  @@map("usuario")
+}
+
+model Cliente {
+  id             String   @id @default(uuid())
+  nombreCompleto String   @map("nombre_completo")
+  dni            String   @unique
+  email          String?  @unique
+  telefono       String?
+  fechaRegistro  DateTime @default(now()) @map("fecha_registro")
+
+  ventasLlavero VentaLlavero[]
+
+  @@map("cliente")
+}
+
+model Tienda {
+  id              String  @id @default(uuid())
+  nombreComercial String  @map("nombre_comercial")
+  pinCajero       String  @map("pin_cajero")
+  estado          Boolean @default(true)
+
+  promociones Promocion[]
+
+  @@map("tienda")
+}
+
+model Promocion {
+  id               String    @id @default(uuid())
+  tiendaId         String    @map("tienda_id")
+  titulo           String
+  descripcion      String?
+  fechaVencimiento DateTime? @map("fecha_vencimiento")
+  estado           Boolean   @default(true)
+  limiteCanjes     Int       @default(1) @map("limite_canjes")
+
+  tienda        Tienda         @relation(fields: [tiendaId], references: [id])
+  ventasLlavero VentaLlavero[]
+
+  @@map("promocion")
+}
+
+model VentaLlavero {
+  id               String   @id @default(uuid())
+  clienteId        String?  @map("cliente_id")
+  promocionId      String   @map("promocion_id")
+  tokenUrl         String   @unique @default(uuid()) @map("token_url")
+  canjesRealizados Int      @default(0) @map("canjes_realizados")
+  detalle          String?
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  cliente   Cliente?  @relation(fields: [clienteId], references: [id])
+  promocion Promocion @relation(fields: [promocionId], references: [id])
+  canjes    Canje[]
+
+  @@map("venta_llavero")
+}
+
+model Canje {
+  id             String   @id @default(uuid())
+  ventaLlaveroId String   @map("venta_llavero_id")
+  fecha          DateTime @default(now())
+
+  ventaLlavero VentaLlavero @relation(fields: [ventaLlaveroId], references: [id])
+
+  @@map("canje")
+}
+
+model QrConfig {
+  id        Int      @id @default(1)
+  url       String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("qr_config")
+}

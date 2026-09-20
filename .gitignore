@@ -1,0 +1,29 @@
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Secretos / variables de entorno (los .env.example sí se versionan)
+.env
+.env.*
+!.env.example
+
+# Dependencias
+node_modules/
+
+# Salidas de build
+dist/
+*.tsbuildinfo
+.angular/
+
+# Cliente Prisma generado (se regenera con `prisma generate`)
+backend/src/generated/prisma/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editores / SO
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

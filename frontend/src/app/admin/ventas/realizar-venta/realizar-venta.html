@@ -1,0 +1,60 @@
+<section class="max-w-lg">
+  <h2 class="mb-4 text-xl font-semibold text-brand-900">Realizar venta</h2>
+
+  <div class="card">
+    <form [formGroup]="form" (ngSubmit)="realizarVenta()" class="flex flex-col gap-4">
+      <label class="field-label">
+        Promoción
+        <select formControlName="promocionId" class="field-input">
+          <option value="" disabled>Selecciona una promoción</option>
+          @for (promocion of promociones(); track promocion.id) {
+            <option [value]="promocion.id">
+              {{ promocion.titulo }} — {{ promocion.tienda?.nombreComercial }}
+            </option>
+          }
+        </select>
+      </label>
+      <label class="field-label">
+        Nombre completo del cliente
+        <input type="text" formControlName="nombreCompleto" class="field-input" />
+      </label>
+      <label class="field-label">
+        DNI
+        <input type="text" formControlName="dni" inputmode="numeric" class="field-input" />
+      </label>
+      <label class="field-label">
+        Detalle (opcional)
+        <textarea formControlName="detalle" rows="3" class="field-input resize-none"></textarea>
+      </label>
+      @if (error()) {
+        <p class="text-sm font-medium text-rose-600">{{ error() }}</p>
+      }
+      <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary">
+        {{ loading() ? 'Registrando...' : 'Registrar venta' }}
+      </button>
+    </form>
+  </div>
+
+  @if (resultado(); as venta) {
+    <div class="card mt-6 border-emerald-200 bg-emerald-50">
+      <h3 class="mb-2 text-base font-semibold text-emerald-900">Venta registrada</h3>
+      <p class="mb-3 text-sm text-emerald-900">
+        <strong>{{ venta.cliente.nombreCompleto }}</strong> — DNI {{ venta.cliente.dni }}
+      </p>
+      @if (venta.detalle) {
+        <p class="mb-3 text-sm text-emerald-900">{{ venta.detalle }}</p>
+      }
+      <p class="mb-2 text-sm text-emerald-800">
+        El cliente ya puede buscar esta promoción en <strong>/buscar</strong> con su DNI. Enlace directo de
+        referencia:
+      </p>
+      <textarea readonly rows="2" class="field-input w-full bg-white font-mono text-xs">{{ venta.url }}</textarea>
+    </div>
+  }
+
+  <p class="mt-6 text-sm">
+    <a routerLink="/admin/ventas" class="font-medium text-brand-700 hover:text-brand-900 hover:underline">
+      Ver todas las ventas
+    </a>
+  </p>
+</section>

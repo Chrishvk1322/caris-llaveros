@@ -1,0 +1,93 @@
+<section class="flex flex-col gap-8 lg:flex-row">
+  <div class="card w-full lg:max-w-sm lg:shrink-0">
+    <h2 class="mb-4 text-xl font-semibold text-brand-900">
+      {{ editandoId() ? 'Editar promoción' : 'Nueva promoción' }}
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" class="flex flex-col gap-4">
+      <label class="field-label">
+        Tienda
+        <select formControlName="tiendaId" class="field-input">
+          <option value="" disabled>Selecciona una tienda</option>
+          @for (tienda of tiendas(); track tienda.id) {
+            <option [value]="tienda.id">{{ tienda.nombreComercial }}</option>
+          }
+        </select>
+      </label>
+      <label class="field-label">
+        Título
+        <input type="text" formControlName="titulo" class="field-input" />
+      </label>
+      <label class="field-label">
+        Límite de canjes por cliente
+        <input type="number" formControlName="limiteCanjes" min="1" class="field-input" />
+      </label>
+      <label class="field-label">
+        Descripción
+        <textarea formControlName="descripcion" rows="3" class="field-input resize-none"></textarea>
+      </label>
+      @if (error()) {
+        <p class="text-sm font-medium text-rose-600">{{ error() }}</p>
+      }
+      <div class="flex gap-2">
+        <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary">
+          {{ editandoId() ? 'Guardar cambios' : 'Agregar promoción' }}
+        </button>
+        @if (editandoId()) {
+          <button type="button" (click)="cancelarEdicion()" class="btn-secondary">Cancelar</button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <h2 class="mb-4 text-xl font-semibold text-brand-900">Promociones registradas</h2>
+    <div class="card overflow-x-auto p-0">
+      <table class="w-full text-sm">
+        <thead class="bg-sand-100 text-left text-xs font-semibold uppercase tracking-wide text-sand-600">
+          <tr>
+            <th class="px-4 py-3">Título</th>
+            <th class="px-4 py-3">Tienda</th>
+            <th class="px-4 py-3">Límite de canjes</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-sand-200">
+          @for (promocion of promociones(); track promocion.id) {
+            <tr class="transition-colors hover:bg-sand-50">
+              <td class="px-4 py-3 font-medium text-brand-900">{{ promocion.titulo }}</td>
+              <td class="px-4 py-3 text-sand-700">{{ promocion.tienda?.nombreComercial }}</td>
+              <td class="px-4 py-3 text-sand-700">{{ promocion.limiteCanjes }}</td>
+              <td class="px-4 py-3">
+                <span
+                  class="badge"
+                  [class.bg-emerald-100]="promocion.estado"
+                  [class.text-emerald-800]="promocion.estado"
+                  [class.bg-amber-100]="!promocion.estado"
+                  [class.text-amber-800]="!promocion.estado"
+                >
+                  {{ promocion.estado ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex justify-end gap-2">
+                  <button type="button" (click)="editar(promocion)" class="btn-secondary px-3 py-1.5">
+                    Editar
+                  </button>
+                  <button type="button" (click)="cambiarEstado(promocion)" class="btn-secondary px-3 py-1.5">
+                    {{ promocion.estado ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="px-4 py-6 text-center text-sand-500">No hay promociones registradas.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-paginador [page]="page()" [limit]="limit" [total]="total()" (pageChange)="irAPagina($event)" />
+  </div>
+</section>

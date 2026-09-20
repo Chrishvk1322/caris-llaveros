@@ -1,0 +1,79 @@
+<section class="flex flex-col gap-8 lg:flex-row">
+  <div class="card w-full lg:max-w-sm lg:shrink-0">
+    <h2 class="mb-4 text-xl font-semibold text-brand-900">
+      {{ editandoId() ? 'Editar tienda' : 'Nueva tienda' }}
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" class="flex flex-col gap-4">
+      <label class="field-label">
+        Nombre comercial
+        <input type="text" formControlName="nombreComercial" class="field-input" />
+      </label>
+      <label class="field-label">
+        PIN de cajero (4 dígitos)
+        @if (editandoId()) {
+          <span class="text-xs font-normal text-sand-500">Dejar vacío para no cambiarlo</span>
+        }
+        <input type="password" formControlName="pin" maxlength="4" inputmode="numeric" class="field-input" />
+      </label>
+      @if (error()) {
+        <p class="text-sm font-medium text-rose-600">{{ error() }}</p>
+      }
+      <div class="flex gap-2">
+        <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary">
+          {{ editandoId() ? 'Guardar cambios' : 'Agregar tienda' }}
+        </button>
+        @if (editandoId()) {
+          <button type="button" (click)="cancelarEdicion()" class="btn-secondary">Cancelar</button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <h2 class="mb-4 text-xl font-semibold text-brand-900">Tiendas registradas</h2>
+    <div class="card overflow-x-auto p-0">
+      <table class="w-full text-sm">
+        <thead class="bg-sand-100 text-left text-xs font-semibold uppercase tracking-wide text-sand-600">
+          <tr>
+            <th class="px-4 py-3">Nombre comercial</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-sand-200">
+          @for (tienda of tiendas(); track tienda.id) {
+            <tr class="transition-colors hover:bg-sand-50">
+              <td class="px-4 py-3 font-medium text-brand-900">{{ tienda.nombreComercial }}</td>
+              <td class="px-4 py-3">
+                <span
+                  class="badge"
+                  [class.bg-emerald-100]="tienda.estado"
+                  [class.text-emerald-800]="tienda.estado"
+                  [class.bg-amber-100]="!tienda.estado"
+                  [class.text-amber-800]="!tienda.estado"
+                >
+                  {{ tienda.estado ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex justify-end gap-2">
+                  <button type="button" (click)="editar(tienda)" class="btn-secondary px-3 py-1.5">
+                    Editar
+                  </button>
+                  <button type="button" (click)="cambiarEstado(tienda)" class="btn-secondary px-3 py-1.5">
+                    {{ tienda.estado ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="3" class="px-4 py-6 text-center text-sand-500">No hay tiendas registradas.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-paginador [page]="page()" [limit]="limit" [total]="total()" (pageChange)="irAPagina($event)" />
+  </div>
+</section>

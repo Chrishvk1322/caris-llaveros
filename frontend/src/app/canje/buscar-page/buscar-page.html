@@ -1,0 +1,81 @@
+<div class="flex min-h-screen flex-col items-center bg-sand-100 px-4 py-10">
+  <app-logo size="md" class="mb-8" />
+
+  <div class="w-full max-w-sm">
+    @switch (vista()) {
+      @case ('inicial') {
+        <div class="card">
+          <h1 class="mb-1 text-lg font-semibold text-brand-900">Consulta tus promociones</h1>
+          <p class="mb-4 text-sm text-sand-600">Ingresa tu DNI para ver tus descuentos disponibles.</p>
+          <form [formGroup]="form" (ngSubmit)="buscar()" class="flex flex-col gap-4">
+            <label class="field-label">
+              DNI
+              <input type="text" formControlName="dni" inputmode="numeric" class="field-input" autofocus />
+            </label>
+            <button type="submit" [disabled]="form.invalid" class="btn-primary">Buscar</button>
+          </form>
+        </div>
+      }
+      @case ('buscando') {
+        <div class="card text-center text-sand-600">Buscando...</div>
+      }
+      @case ('no-encontrado') {
+        <div class="card flex flex-col items-center gap-4 text-center">
+          <span class="badge bg-amber-100 text-amber-800">
+            No encontramos ninguna promoción registrada con ese DNI
+          </span>
+          <button type="button" (click)="buscarOtroDni()" class="btn-secondary">Intentar de nuevo</button>
+        </div>
+      }
+      @case ('error-red') {
+        <div class="card flex flex-col items-center gap-3 text-center">
+          <p class="text-sm text-sand-700">No se pudo conectar con el servidor.</p>
+          <button type="button" (click)="buscar()" class="btn-secondary">Reintentar</button>
+        </div>
+      }
+      @case ('resultados') {
+        <div class="flex flex-col gap-4">
+          @if (resultado(); as resultado) {
+            <div class="card">
+              <p class="text-sm text-sand-600">Promociones de</p>
+              <p class="text-lg font-semibold text-brand-900">{{ resultado.cliente.nombreCompleto }}</p>
+              <p class="text-sm text-sand-500">DNI {{ resultado.cliente.dni }}</p>
+            </div>
+
+            @for (venta of resultado.ventas; track venta.tokenUrl) {
+              <a
+                [routerLink]="['/nfc', venta.tokenUrl]"
+                class="card flex items-center justify-between gap-4 transition-colors hover:bg-sand-50"
+              >
+                <div>
+                  <p class="font-medium text-brand-900">{{ venta.promocion.titulo }}</p>
+                  <p class="text-sm text-sand-600">{{ venta.tienda }}</p>
+                  <p class="text-xs text-sand-500">
+                    {{ venta.canjesRestantes }} de {{ venta.limiteCanjes }} canjes disponibles
+                  </p>
+                </div>
+                <span
+                  class="badge shrink-0"
+                  [class.bg-emerald-100]="venta.estado === 'PENDIENTE'"
+                  [class.text-emerald-800]="venta.estado === 'PENDIENTE'"
+                  [class.bg-amber-100]="venta.estado === 'PARCIAL'"
+                  [class.text-amber-800]="venta.estado === 'PARCIAL'"
+                  [class.bg-rose-100]="venta.estado === 'AGOTADO'"
+                  [class.text-rose-800]="venta.estado === 'AGOTADO'"
+                >
+                  {{ venta.estado }}
+                </span>
+              </a>
+            } @empty {
+              <p class="text-center text-sm text-sand-500">Aún no tienes promociones registradas.</p>
+            }
+
+            <button type="button" (click)="buscarOtroDni()" class="btn-secondary self-center">
+              Buscar otro DNI
+            </button>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

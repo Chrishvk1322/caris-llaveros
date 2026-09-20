@@ -1,0 +1,52 @@
+<div class="min-h-screen bg-sand-100">
+  <header class="border-b-2 border-black bg-white">
+    <nav class="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-6 py-4">
+      <app-logo size="sm" />
+
+      <div class="flex flex-1 flex-wrap items-center gap-1 text-sm font-medium">
+        <a
+          routerLink="/admin/qr"
+          routerLinkActive="bg-black text-white"
+          class="rounded-lg px-3 py-2 text-sand-700 transition-colors hover:bg-sand-100 hover:text-black"
+        >
+          QR
+        </a>
+        <a
+          routerLink="/admin/tiendas"
+          routerLinkActive="bg-black text-white"
+          class="rounded-lg px-3 py-2 text-sand-700 transition-colors hover:bg-sand-100 hover:text-black"
+        >
+          Tiendas
+        </a>
+        <a
+          routerLink="/admin/promociones"
+          routerLinkActive="bg-black text-white"
+          class="rounded-lg px-3 py-2 text-sand-700 transition-colors hover:bg-sand-100 hover:text-black"
+        >
+          Promociones
+        </a>
+        <a
+          routerLink="/admin/ventas"
+          routerLinkActive="bg-black text-white"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="rounded-lg px-3 py-2 text-sand-700 transition-colors hover:bg-sand-100 hover:text-black"
+        >
+          Ventas
+        </a>
+        <a
+          routerLink="/admin/ventas/nueva"
+          routerLinkActive="bg-black text-white"
+          class="rounded-lg px-3 py-2 text-sand-700 transition-colors hover:bg-sand-100 hover:text-black"
+        >
+          Realizar venta
+        </a>
+      </div>
+
+      <button type="button" (click)="logout()" class="btn-secondary">Salir</button>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-8">
+    <router-outlet />
+  </main>
+</div>

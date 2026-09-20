@@ -1,0 +1,56 @@
+<section>
+  <div class="mb-4 flex items-center justify-between">
+    <h2 class="text-xl font-semibold text-brand-900">Ventas</h2>
+    <a routerLink="/admin/ventas/nueva" class="btn-primary">Realizar venta</a>
+  </div>
+
+  <div class="card overflow-x-auto p-0">
+    <table class="w-full text-sm">
+      <thead class="bg-sand-100 text-left text-xs font-semibold uppercase tracking-wide text-sand-600">
+        <tr>
+          <th class="px-4 py-3">Cliente</th>
+          <th class="px-4 py-3">DNI</th>
+          <th class="px-4 py-3">Promoción</th>
+          <th class="px-4 py-3">Tienda</th>
+          <th class="px-4 py-3">Canjes</th>
+          <th class="px-4 py-3">Estado</th>
+          <th class="px-4 py-3">Fecha</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-sand-200">
+        @for (venta of ventas(); track venta.id) {
+          <tr
+            [routerLink]="['/admin/ventas', venta.id]"
+            class="cursor-pointer transition-colors hover:bg-sand-50"
+          >
+            <td class="px-4 py-3 font-medium text-brand-900">{{ venta.cliente.nombreCompleto }}</td>
+            <td class="px-4 py-3 text-sand-700">{{ venta.cliente.dni }}</td>
+            <td class="px-4 py-3 text-sand-700">{{ venta.promocion.titulo }}</td>
+            <td class="px-4 py-3 text-sand-700">{{ venta.promocion.tienda.nombreComercial }}</td>
+            <td class="px-4 py-3 text-sand-700">
+              {{ venta.canjesRealizados }} / {{ venta.promocion.limiteCanjes }}
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="badge"
+                [class.bg-emerald-100]="venta.estado === 'PENDIENTE'"
+                [class.text-emerald-800]="venta.estado === 'PENDIENTE'"
+                [class.bg-amber-100]="venta.estado === 'PARCIAL'"
+                [class.text-amber-800]="venta.estado === 'PARCIAL'"
+                [class.bg-rose-100]="venta.estado === 'AGOTADO'"
+                [class.text-rose-800]="venta.estado === 'AGOTADO'"
+              >
+                {{ venta.estado }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-sand-700">{{ venta.createdAt | date: 'short' }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" class="px-4 py-6 text-center text-sand-500">No hay ventas registradas.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-paginador [page]="page()" [limit]="limit" [total]="total()" (pageChange)="irAPagina($event)" />
+</section>

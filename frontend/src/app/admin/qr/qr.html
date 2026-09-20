@@ -1,0 +1,67 @@
+<section class="max-w-lg">
+  <h2 class="mb-4 text-xl font-semibold text-brand-900">Código QR</h2>
+
+  <div class="card">
+    <p class="mb-4 text-sm text-sand-600">
+      Ingresa el enlace exacto al que debe redirigir el QR (ej. <code>https://caris.com/buscar</code>).
+      El QR se guarda en el sistema y se puede descargar cuando quieras, incluso tras reiniciar,
+      hasta que generes uno nuevo.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="intentarGenerar()" class="flex flex-col gap-4">
+      <label class="field-label">
+        Enlace
+        <input
+          type="text"
+          formControlName="url"
+          placeholder="https://caris.com/buscar"
+          class="field-input"
+        />
+      </label>
+      @if (form.controls.url.touched && form.controls.url.invalid) {
+        <p class="text-sm font-medium text-rose-600">
+          Ingresa una URL válida, incluyendo http:// o https://
+        </p>
+      }
+      @if (error()) {
+        <p class="text-sm font-medium text-rose-600">{{ error() }}</p>
+      }
+
+      @if (!confirmandoNuevo()) {
+        <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary self-start">
+          {{ loading() ? 'Generando...' : guardado() ? 'Generar nuevo QR' : 'Generar QR' }}
+        </button>
+      } @else {
+        <div class="rounded-lg bg-amber-50 p-3">
+          <p class="mb-3 text-sm font-medium text-amber-900">
+            ¿Estás seguro de generar un nuevo QR? El anterior dejará de mostrarse.
+          </p>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              [disabled]="loading()"
+              (click)="confirmarNuevo()"
+              class="btn-danger"
+            >
+              {{ loading() ? 'Generando...' : 'Sí, generar nuevo' }}
+            </button>
+            <button type="button" (click)="cancelarNuevo()" class="btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      }
+    </form>
+  </div>
+
+  <div class="card mt-6" [class.hidden]="!guardado()">
+    <div class="flex flex-col items-center gap-3">
+      <canvas #qrCanvas></canvas>
+      @if (guardado(); as qr) {
+        <p class="text-center text-sm text-sand-600">
+          Redirige a <span class="font-medium text-brand-800">{{ qr.url }}</span>
+        </p>
+        <p class="text-xs text-sand-500">Generado el {{ qr.updatedAt | date: 'medium' }}</p>
+      }
+      <button type="button" (click)="descargar()" class="btn-secondary">Descargar PNG</button>
+    </div>
+  </div>
+</section>

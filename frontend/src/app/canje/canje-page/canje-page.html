@@ -1,0 +1,134 @@
+<div class="flex min-h-screen flex-col items-center bg-sand-100 px-4 py-10">
+  <app-logo size="md" class="mb-8" />
+
+  <div class="w-full max-w-sm">
+    @switch (vista()) {
+      @case ('cargando') {
+        <div class="card text-center text-sand-600">Cargando...</div>
+      }
+      @case ('no-encontrado') {
+        <div class="card text-center">
+          <span class="badge bg-rose-100 text-rose-800">Llavero no encontrado</span>
+        </div>
+      }
+      @case ('error-red') {
+        <div class="card flex flex-col items-center gap-3 text-center">
+          <p class="text-sm text-sand-700">No se pudo conectar con el servidor.</p>
+          <button type="button" (click)="cargarEstado()" class="btn-secondary">Reintentar</button>
+        </div>
+      }
+      @case ('agotado') {
+        <div class="card flex flex-col items-center gap-2 text-center">
+          <span class="badge bg-rose-100 text-rose-800">Esta promoción ya alcanzó su límite de canjes</span>
+          @if (estado(); as estado) {
+            <p class="text-sm text-sand-600">{{ estado.promocion.titulo }} — {{ estado.tienda }}</p>
+          }
+          @if (estado()?.cliente; as cliente) {
+            <p class="text-sm font-medium text-brand-800">{{ cliente.nombreCompleto }} — DNI {{ cliente.dni }}</p>
+          }
+        </div>
+      }
+      @case ('disponible') {
+        <div class="card flex flex-col items-center gap-4 text-center">
+          <div>
+            <h1 class="text-lg font-semibold text-brand-900">{{ estado()?.promocion?.titulo }}</h1>
+            @if (estado()?.promocion?.descripcion) {
+              <p class="mt-1 text-sm text-sand-700">{{ estado()?.promocion?.descripcion }}</p>
+            }
+            <p class="mt-1 text-sm text-sand-500">{{ estado()?.tienda }}</p>
+          </div>
+
+          @if (estado(); as estado) {
+            <span
+              class="badge"
+              [class.bg-emerald-100]="estado.estado === 'PENDIENTE'"
+              [class.text-emerald-800]="estado.estado === 'PENDIENTE'"
+              [class.bg-amber-100]="estado.estado === 'PARCIAL'"
+              [class.text-amber-800]="estado.estado === 'PARCIAL'"
+            >
+              Te quedan {{ estado.canjesRestantes }} de {{ estado.limiteCanjes }} canjes
+            </span>
+          }
+
+          @if (estado()?.cliente; as cliente) {
+            <p class="rounded-lg bg-sand-100 px-3 py-2 text-sm font-medium text-brand-800">
+              Cliente: {{ cliente.nombreCompleto }} — DNI {{ cliente.dni }}
+            </p>
+          }
+
+          <p class="text-sm text-sand-600">El cajero debe ingresar su PIN para aplicar el descuento.</p>
+
+          <div class="flex gap-3">
+            @for (i of [0, 1, 2, 3]; track i) {
+              <span
+                class="h-3.5 w-3.5 rounded-full border border-brand-400 transition-colors"
+                [class.bg-brand-700]="pin().length > i"
+                [class.border-brand-700]="pin().length > i"
+              ></span>
+            }
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            @for (digito of ['1','2','3','4','5','6','7','8','9']; track digito) {
+              <button
+                type="button"
+                (click)="presionar(digito)"
+                class="h-14 w-14 rounded-xl bg-sand-100 text-lg font-semibold text-brand-900 transition-colors hover:bg-sand-200 active:bg-sand-300"
+              >
+                {{ digito }}
+              </button>
+            }
+            <button
+              type="button"
+              (click)="borrar()"
+              class="h-14 w-14 rounded-xl bg-sand-100 text-lg font-semibold text-brand-700 transition-colors hover:bg-sand-200 active:bg-sand-300"
+            >
+              ⌫
+            </button>
+            <button
+              type="button"
+              (click)="presionar('0')"
+              class="h-14 w-14 rounded-xl bg-sand-100 text-lg font-semibold text-brand-900 transition-colors hover:bg-sand-200 active:bg-sand-300"
+            >
+              0
+            </button>
+            <button
+              type="button"
+              [disabled]="pin().length !== 4 || aplicando()"
+              (click)="aplicar()"
+              class="h-14 w-14 rounded-xl bg-emerald-600 text-lg font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-sand-300 disabled:text-sand-500"
+            >
+              {{ aplicando() ? '...' : 'OK' }}
+            </button>
+          </div>
+
+          @if (errorAplicar()) {
+            <p class="text-sm font-medium text-rose-600">{{ errorAplicar() }}</p>
+          }
+        </div>
+      }
+      @case ('exito') {
+        <div class="card flex flex-col items-center gap-2 text-center">
+          <p class="text-4xl text-emerald-600">✓</p>
+          <h1 class="text-lg font-semibold text-brand-900">¡Descuento aplicado!</h1>
+          <p class="text-sm text-sand-700">{{ estado()?.promocion?.titulo }}</p>
+          <p class="text-sm text-sand-500">{{ estado()?.tienda }}</p>
+          @if (estado(); as estado) {
+            <p class="text-sm text-sand-600">
+              Te quedan {{ estado.canjesRestantes }} de {{ estado.limiteCanjes }} canjes
+            </p>
+          }
+          @if (estado()?.cliente; as cliente) {
+            <p class="mt-1 text-sm font-medium text-brand-800">{{ cliente.nombreCompleto }} — DNI {{ cliente.dni }}</p>
+          }
+        </div>
+      }
+    }
+
+    <p class="mt-4 text-center text-sm">
+      <a routerLink="/buscar" class="font-medium text-brand-700 hover:text-brand-900 hover:underline">
+        ← Buscar otra promoción
+      </a>
+    </p>
+  </div>
+</div>
