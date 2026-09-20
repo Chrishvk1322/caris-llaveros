@@ -58,7 +58,7 @@ jobs:
             sed -i 's#^BACKEND_IMAGE=.*#BACKEND_IMAGE=${{ env.IMAGE }}:${{ github.sha }}#' .env && \
             docker compose pull backend && \
             docker compose up -d backend && \
-            docker compose exec -T backend pnpm exec prisma migrate deploy"
+            docker compose exec -T backend ./node_modules/.bin/prisma migrate deploy"
 
   deploy-frontend:
     if: github.event.workflow_run.conclusion == 'success'
