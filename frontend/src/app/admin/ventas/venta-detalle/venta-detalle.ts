@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ProductoService } from '../../../core/producto';
 import { VentaDetalle as VentaDetalleModel, VentaService } from '../../../core/venta';
 
 @Component({
@@ -11,6 +12,7 @@ import { VentaDetalle as VentaDetalleModel, VentaService } from '../../../core/v
 export class VentaDetalle {
   private readonly route = inject(ActivatedRoute);
   private readonly ventaService = inject(VentaService);
+  private readonly productoService = inject(ProductoService);
 
   private readonly id = this.route.snapshot.paramMap.get('id')!;
 
@@ -25,6 +27,11 @@ export class VentaDetalle {
 
   private cargar(): void {
     this.ventaService.obtenerDetalle(this.id).subscribe((venta) => this.venta.set(venta));
+  }
+
+  urlFotoProducto(): string | null {
+    const producto = this.venta()?.producto;
+    return producto ? this.productoService.urlFoto(producto) : null;
   }
 
   pedirConfirmacion(): void {

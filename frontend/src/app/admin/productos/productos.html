@@ -1,0 +1,130 @@
+<section class="flex flex-col gap-8 lg:flex-row">
+  <div class="card w-full lg:max-w-sm lg:shrink-0">
+    <h2 class="mb-4 text-xl font-semibold text-brand-900">
+      {{ editando() ? 'Editar producto' : 'Nuevo producto' }}
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" class="flex flex-col gap-4">
+      <label class="field-label">
+        Código
+        <input type="text" formControlName="codigo" maxlength="50" class="field-input" />
+      </label>
+      <label class="field-label">
+        Nombre
+        <input type="text" formControlName="nombre" maxlength="150" class="field-input" />
+      </label>
+      <label class="field-label">
+        Descripción (opcional)
+        <textarea formControlName="descripcion" rows="3" maxlength="1000" class="field-input resize-none"></textarea>
+      </label>
+
+      <div class="field-label">
+        Foto (opcional)
+        <span class="text-xs font-normal text-sand-500">JPG, PNG o WebP, máximo 1 MB</span>
+        @if (fotoActual(); as foto) {
+          <img [src]="foto" alt="Vista previa de la foto" class="h-32 w-32 rounded-lg border border-sand-200 object-cover" />
+        }
+        <input
+          #inputFoto
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          (change)="seleccionarFoto($event)"
+          class="field-input file:mr-3 file:rounded-md file:border-0 file:bg-sand-100 file:px-3 file:py-1.5 file:text-sm file:font-medium"
+        />
+        @if (fotoActual()) {
+          <button type="button" (click)="quitarFotoActual()" class="btn-secondary self-start px-3 py-1.5">
+            Quitar foto
+          </button>
+        }
+        @if (errorFoto()) {
+          <span class="text-sm font-medium text-rose-600">{{ errorFoto() }}</span>
+        }
+      </div>
+
+      @if (error()) {
+        <p class="text-sm font-medium text-rose-600">{{ error() }}</p>
+      }
+      <div class="flex gap-2">
+        <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary">
+          {{ editando() ? 'Guardar cambios' : 'Agregar producto' }}
+        </button>
+        @if (editando()) {
+          <button type="button" (click)="cancelarEdicion()" class="btn-secondary">Cancelar</button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-xl font-semibold text-brand-900">Productos registrados</h2>
+      <input
+        type="search"
+        [formControl]="busqueda"
+        placeholder="Buscar por código o nombre"
+        class="field-input w-full sm:w-64"
+      />
+    </div>
+
+    <div class="card overflow-x-auto p-0">
+      <table class="w-full text-sm">
+        <thead class="bg-sand-100 text-left text-xs font-semibold uppercase tracking-wide text-sand-600">
+          <tr>
+            <th class="px-4 py-3">Foto</th>
+            <th class="px-4 py-3">Código</th>
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-sand-200">
+          @for (producto of productos(); track producto.id) {
+            <tr class="transition-colors hover:bg-sand-50">
+              <td class="px-4 py-3">
+                @if (urlFoto(producto); as foto) {
+                  <img [src]="foto" [alt]="producto.nombre" class="h-10 w-10 rounded-md border border-sand-200 object-cover" />
+                } @else {
+                  <div class="flex h-10 w-10 items-center justify-center rounded-md bg-sand-100 text-xs text-sand-400">
+                    —
+                  </div>
+                }
+              </td>
+              <td class="px-4 py-3 font-mono text-xs text-brand-900">{{ producto.codigo }}</td>
+              <td class="px-4 py-3">
+                <div class="font-medium text-brand-900">{{ producto.nombre }}</div>
+                @if (producto.descripcion) {
+                  <div class="max-w-xs truncate text-xs text-sand-500">{{ producto.descripcion }}</div>
+                }
+              </td>
+              <td class="px-4 py-3">
+                <span
+                  class="badge"
+                  [class.bg-emerald-100]="producto.estado"
+                  [class.text-emerald-800]="producto.estado"
+                  [class.bg-amber-100]="!producto.estado"
+                  [class.text-amber-800]="!producto.estado"
+                >
+                  {{ producto.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex justify-end gap-2">
+                  <button type="button" (click)="editar(producto)" class="btn-secondary px-3 py-1.5">Editar</button>
+                  <button type="button" (click)="cambiarEstado(producto)" class="btn-secondary px-3 py-1.5">
+                    {{ producto.estado ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="px-4 py-6 text-center text-sand-500">No hay productos que mostrar.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-paginador [page]="page()" [limit]="limit" [total]="total()" (pageChange)="irAPagina($event)" />
+  </div>
+</section>

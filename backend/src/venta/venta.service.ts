@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto.js';
 import { calcularEstadoCanje } from '../common/utils/estado-canje.util.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { SELECT_PRODUCTO, toProductoDto } from '../producto/producto.util.js';
 import { RealizarVentaDto } from './dto/realizar-venta.dto.js';
 
 const SELECT_LISTADO = {
@@ -20,6 +21,7 @@ const INCLUDE_DETALLE = {
   promocion: {
     include: { tienda: { select: { id: true, nombreComercial: true, estado: true } } },
   },
+  producto: { select: SELECT_PRODUCTO },
   canjes: { orderBy: { fecha: 'desc' as const } },
 } as const;
 
@@ -57,6 +59,17 @@ export class VentaService {
       throw new NotFoundException('Promoción no encontrada');
     }
 
+    const producto = await this.prisma.producto.findUnique({
+      where: { id: dto.productoId },
+      select: { id: true, codigo: true, nombre: true, estado: true },
+    });
+    if (!producto) {
+      throw new NotFoundException('Producto no encontrado');
+    }
+    if (!producto.estado) {
+      throw new BadRequestException('El producto está inactivo y no se puede vender');
+    }
+
     const cliente = await this.prisma.cliente.upsert({
       where: { dni: dto.dni },
       update: {},
@@ -64,7 +77,12 @@ export class VentaService {
     });
 
     const venta = await this.prisma.ventaLlavero.create({
-      data: { clienteId: cliente.id, promocionId: dto.promocionId, detalle: dto.detalle },
+      data: {
+        clienteId: cliente.id,
+        promocionId: dto.promocionId,
+        productoId: producto.id,
+        detalle: dto.detalle,
+      },
     });
 
     const baseUrl = process.env.APP_BASE_URL ?? 'http://localhost:4200';
@@ -74,6 +92,7 @@ export class VentaService {
       url: `${baseUrl}/nfc/${venta.tokenUrl}`,
       detalle: venta.detalle,
       cliente: { nombreCompleto: cliente.nombreCompleto, dni: cliente.dni },
+      producto: { codigo: producto.codigo, nombre: producto.nombre },
     };
   }
 
@@ -109,6 +128,7 @@ export class VentaService {
     );
     return {
       ...venta,
+      producto: venta.producto ? toProductoDto(venta.producto) : null,
       estado,
       canjesRestantes,
       historialCanjes: venta.canjes.map((canje) => ({ fecha: canje.fecha })),

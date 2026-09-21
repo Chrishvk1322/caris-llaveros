@@ -14,6 +14,69 @@
           }
         </select>
       </label>
+      <div class="field-label">
+        Producto
+        @if (productoSeleccionado(); as producto) {
+          <div class="flex items-center gap-3 rounded-lg border border-sand-300 bg-white p-2">
+            @if (urlFoto(producto); as foto) {
+              <img [src]="foto" [alt]="producto.nombre" class="h-12 w-12 shrink-0 rounded-md object-cover" />
+            } @else {
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-sand-100 text-xs text-sand-400">
+                —
+              </div>
+            }
+            <div class="min-w-0 flex-1">
+              <div class="truncate font-medium text-brand-900">{{ producto.nombre }}</div>
+              <div class="font-mono text-xs text-sand-500">{{ producto.codigo }}</div>
+            </div>
+            <button type="button" (click)="cambiarProducto()" class="btn-secondary px-3 py-1.5">Cambiar</button>
+          </div>
+        } @else {
+          <div class="relative">
+            <input
+              type="search"
+              [formControl]="busquedaProducto"
+              (focus)="abrirLista()"
+              (blur)="cerrarLista()"
+              (keydown.escape)="cerrarLista()"
+              placeholder="Buscar por código o nombre"
+              autocomplete="off"
+              class="field-input w-full"
+            />
+            @if (listaAbierta()) {
+              <ul
+                class="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-sand-300 bg-white shadow-lg"
+              >
+                @for (producto of resultadosProducto(); track producto.id) {
+                  <li>
+                    <button
+                      type="button"
+                      (mousedown)="$event.preventDefault(); seleccionarProducto(producto)"
+                      class="flex w-full items-center gap-3 px-3 py-2 text-left font-normal hover:bg-sand-100"
+                    >
+                      @if (urlFoto(producto); as foto) {
+                        <img [src]="foto" [alt]="producto.nombre" class="h-10 w-10 shrink-0 rounded-md object-cover" />
+                      } @else {
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sand-100 text-xs text-sand-400">
+                          —
+                        </div>
+                      }
+                      <span class="min-w-0">
+                        <span class="block truncate text-sm font-medium text-brand-900">{{ producto.nombre }}</span>
+                        <span class="block font-mono text-xs text-sand-500">{{ producto.codigo }}</span>
+                      </span>
+                    </button>
+                  </li>
+                } @empty {
+                  <li class="px-3 py-3 text-sm font-normal text-sand-500">
+                    {{ buscandoProducto() ? 'Buscando...' : 'No se encontraron productos activos.' }}
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
       <label class="field-label">
         Nombre completo del cliente
         <input type="text" formControlName="nombreCompleto" class="field-input" />
@@ -40,6 +103,9 @@
       <h3 class="mb-2 text-base font-semibold text-emerald-900">Venta registrada</h3>
       <p class="mb-3 text-sm text-emerald-900">
         <strong>{{ venta.cliente.nombreCompleto }}</strong> — DNI {{ venta.cliente.dni }}
+      </p>
+      <p class="mb-3 text-sm text-emerald-900">
+        Producto: <strong>{{ venta.producto.nombre }}</strong> ({{ venta.producto.codigo }})
       </p>
       @if (venta.detalle) {
         <p class="mb-3 text-sm text-emerald-900">{{ venta.detalle }}</p>

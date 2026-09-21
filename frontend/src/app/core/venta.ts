@@ -2,6 +2,7 @@ import { Service, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Paginated } from './pagination';
+import { Producto } from './producto';
 
 export type EstadoCanje = 'PENDIENTE' | 'PARCIAL' | 'AGOTADO';
 
@@ -11,6 +12,7 @@ export interface VentaGenerada {
   url: string;
   detalle: string | null;
   cliente: { nombreCompleto: string; dni: string };
+  producto: { codigo: string; nombre: string };
 }
 
 export interface VentaResumen {
@@ -34,6 +36,8 @@ export interface VentaDetalle {
   detalle: string | null;
   historialCanjes: { fecha: string }[];
   cliente: { nombreCompleto: string; dni: string };
+  /** `null` en ventas anteriores al módulo de productos. */
+  producto: Producto | null;
   promocion: {
     titulo: string;
     descripcion: string | null;
@@ -46,9 +50,16 @@ export interface VentaDetalle {
 export class VentaService {
   private readonly http = inject(HttpClient);
 
-  realizarVenta(promocionId: string, nombreCompleto: string, dni: string, detalle?: string) {
+  realizarVenta(
+    promocionId: string,
+    productoId: string,
+    nombreCompleto: string,
+    dni: string,
+    detalle?: string,
+  ) {
     return this.http.post<VentaGenerada>(`${environment.apiBaseUrl}/ventas`, {
       promocionId,
+      productoId,
       nombreCompleto,
       dni,
       detalle,

@@ -70,10 +70,27 @@ model Promocion {
   @@map("promocion")
 }
 
+model Producto {
+  id          String   @id @default(uuid())
+  codigo      String   @unique
+  nombre      String
+  descripcion String?
+  foto        Bytes?
+  fotoMime    String?  @map("foto_mime")
+  estado      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  ventasLlavero VentaLlavero[]
+
+  @@map("producto")
+}
+
 model VentaLlavero {
   id               String   @id @default(uuid())
   clienteId        String?  @map("cliente_id")
   promocionId      String   @map("promocion_id")
+  productoId       String?  @map("producto_id")
   tokenUrl         String   @unique @default(uuid()) @map("token_url")
   canjesRealizados Int      @default(0) @map("canjes_realizados")
   detalle          String?
@@ -81,6 +98,7 @@ model VentaLlavero {
 
   cliente   Cliente?  @relation(fields: [clienteId], references: [id])
   promocion Promocion @relation(fields: [promocionId], references: [id])
+  producto  Producto? @relation(fields: [productoId], references: [id])
   canjes    Canje[]
 
   @@map("venta_llavero")

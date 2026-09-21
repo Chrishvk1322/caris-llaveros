@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { CanjeModule } from './canje/canje.module.js';
 import { ClienteModule } from './cliente/cliente.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { ProductoModule } from './producto/producto.module.js';
 import { QrModule } from './qr/qr.module.js';
 import { PromocionModule } from './promocion/promocion.module.js';
 import { TiendaModule } from './tienda/tienda.module.js';
@@ -17,6 +18,7 @@ import { VentaModule } from './venta/venta.module.js';
     AuthModule,
     TiendaModule,
     PromocionModule,
+    ProductoModule,
     ClienteModule,
     VentaModule,
     CanjeModule,

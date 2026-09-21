@@ -31,6 +31,9 @@ ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+# prisma/create-admin.ts y seed.ts importan el cliente desde src/generated/prisma
+# (rutas relativas en TS); la app compilada usa dist/generated, no esto.
+COPY --from=build /app/src/generated ./src/generated
 COPY --from=build /app/prisma7.config.ts ./prisma7.config.ts
 COPY --from=build /app/package.json ./package.json
 

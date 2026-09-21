@@ -24,6 +24,10 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./promociones/promociones').then((m) => m.Promociones),
       },
       {
+        path: 'productos',
+        loadComponent: () => import('./productos/productos').then((m) => m.Productos),
+      },
+      {
         path: 'ventas',
         loadComponent: () => import('./ventas/ventas').then((m) => m.Ventas),
       },

@@ -17,6 +17,26 @@
         <dt class="font-semibold text-sand-600">DNI</dt>
         <dd class="text-brand-900">{{ venta.cliente.dni }}</dd>
 
+        <dt class="font-semibold text-sand-600">Producto</dt>
+        <dd class="text-brand-900">
+          @if (venta.producto; as producto) {
+            <div class="flex items-start gap-3">
+              @if (urlFotoProducto(); as foto) {
+                <img [src]="foto" [alt]="producto.nombre" class="h-16 w-16 shrink-0 rounded-md border border-sand-200 object-cover" />
+              }
+              <div class="min-w-0">
+                <div class="font-medium">{{ producto.nombre }}</div>
+                <div class="font-mono text-xs text-sand-500">{{ producto.codigo }}</div>
+                @if (producto.descripcion) {
+                  <div class="mt-1 text-sand-600">{{ producto.descripcion }}</div>
+                }
+              </div>
+            </div>
+          } @else {
+            <span class="text-sand-500">Sin producto (venta anterior al módulo de productos)</span>
+          }
+        </dd>
+
         <dt class="font-semibold text-sand-600">Promoción</dt>
         <dd class="text-brand-900">{{ venta.promocion.titulo }}</dd>
 

@@ -4,6 +4,9 @@ export class RealizarVentaDto {
   @IsUUID()
   promocionId!: string;
 
+  @IsUUID()
+  productoId!: string;
+
   @IsString()
   @MinLength(2)
   nombreCompleto!: string;
